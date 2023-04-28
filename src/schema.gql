@@ -3,21 +3,40 @@
 # ------------------------------------------------------
 
 type Item {
-  id: ID!
+  id: Int!
   name: String!
   quantity: Int!
   quantityUnits: String
 }
 
+type User {
+  id: Int!
+  fullName: String!
+  email: String!
+  roles: [String!]!
+  isActive: Boolean!
+}
+
+type AuthResponde {
+  token: String!
+  user: User!
+}
+
 type Query {
   items: [Item!]!
   item(id: Int!): Item!
+  users: [User!]!
+  user(email: String!): User!
+  revalidate: AuthResponde!
 }
 
 type Mutation {
   createItem(createItemInput: CreateItemInput!): Item!
   updateItem(updateItemInput: UpdateItemInput!): Item!
   deleteItem(id: Int!): Item!
+  blockUser(id: Int!): User!
+  signup(signupInput: SignupInput!): AuthResponde!
+  signin(signinInput: SigninInput!): AuthResponde!
 }
 
 input CreateItemInput {
@@ -31,4 +50,15 @@ input UpdateItemInput {
   quantity: Int
   quantityUnits: String
   id: Int!
+}
+
+input SignupInput {
+  email: String!
+  fullName: String!
+  password: String!
+}
+
+input SigninInput {
+  email: String!
+  password: String!
 }
