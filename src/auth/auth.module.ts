@@ -15,6 +15,7 @@ import { UsersModule } from 'src/users/users.module';
   providers: [AuthResolver, AuthService, JwtStrategy],
   exports: [JwtStrategy, PassportModule, JwtModule],
   imports: [
+    ConfigModule,
     // Passport & JWT
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
@@ -29,7 +30,6 @@ import { UsersModule } from 'src/users/users.module';
         }
       }
     }),
-    ConfigModule,
     UsersModule,
   ]
 })

@@ -4,6 +4,8 @@ import { User } from './entities/user.entity';
 import { SignupInput } from '../auth/dto/inputs/signup.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
+import { UpdateUserInput } from './dto';
 
 @Injectable()
 export class UsersService {
@@ -29,8 +31,13 @@ export class UsersService {
     }
   }
 
-  async findAll(): Promise<User[]> {
-    return await this.userRepository.find()
+  async findAll(roles: ValidRoles[]): Promise<User[]> {
+    if (roles.length === 0) return await this.userRepository.find()
+    // Find by role
+    return this.userRepository.createQueryBuilder()
+      .andWhere('ARRAY[roles] && ARRAY[:...roles]')
+      .setParameter('roles', roles)
+      .getMany()
   }
 
   async findOneByEmail(email: string): Promise<User> {
@@ -55,8 +62,21 @@ export class UsersService {
     }
   }
 
-  block(id: number): Promise<User> {
-    throw new Error(`block not implemented`)
+  async update(id: number, updateUserInput: UpdateUserInput, updateBy: User): Promise<User> {
+    try {
+      const user = await this.userRepository.preload({ id, ...updateUserInput })
+      user.lastUpdateBy = updateBy
+      return await this.userRepository.save(user)
+    } catch (error) {
+      this.handleDBException(error)
+    }
+  }
+
+  async block(id: number, adminUser: User): Promise<User> {
+    const userToBlock = await this.findOneById(id)
+    userToBlock.isActive = false
+    userToBlock.lastUpdateBy = adminUser
+    return await this.userRepository.save(userToBlock)
   }
 
   // Manejo de excepciones
