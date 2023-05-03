@@ -8,11 +8,11 @@ export class CreateItemInput {
   @Field(() => String)
   name: string
 
-  @IsInt()
-  @IsPositive()
-  @Min(1)
-  @Field(() => Int)
-  quantity: number
+  // @IsInt()
+  // @IsPositive()
+  // @Min(1)
+  // @Field(() => Int)
+  // quantity: number
 
   @IsString()
   @IsOptional()

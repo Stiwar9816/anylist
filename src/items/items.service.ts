@@ -3,6 +3,7 @@ import { CreateItemInput, UpdateItemInput } from './dto';
 import { Item } from './entities/item.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
 @Injectable()
 export class ItemsService {
 
@@ -13,26 +14,38 @@ export class ItemsService {
     private readonly itemsRepository: Repository<Item>
   ) { }
 
-  async create(createItemInput: CreateItemInput): Promise<Item> {
+  async create(createItemInput: CreateItemInput, user: User): Promise<Item> {
     try {
-      const newItem = this.itemsRepository.create(createItemInput)
+      const newItem = this.itemsRepository.create({ ...createItemInput, user })
       return await this.itemsRepository.save(newItem)
     } catch (error) {
       this.handleDBException(error)
     }
   }
 
-  async findAll(): Promise<Item[]> {
-    return await this.itemsRepository.find()
+  async findAll(user: User): Promise<Item[]> {
+    return await this.itemsRepository.find({
+      where: {
+        user: {
+          id: user.id
+        }
+      }
+    })
   }
 
-  async findOne(id: number): Promise<Item> {
-    const item = await this.itemsRepository.findOneBy({ id })
+  async findOne(id: number, user: User): Promise<Item> {
+    const item = await this.itemsRepository.findOneBy({
+      id,
+      user: {
+        id: user.id
+      }
+    })
     this.handleDBNotFound(item, id)
     return item
   }
 
-  async update(id: number, updateItemInput: UpdateItemInput): Promise<Item> {
+  async update(id: number, updateItemInput: UpdateItemInput, user: User): Promise<Item> {
+    await this.findOne(id, user)
     const item = await this.itemsRepository.preload(updateItemInput)
     this.handleDBNotFound(item, id)
     try {
@@ -42,9 +55,19 @@ export class ItemsService {
     }
   }
 
-  async remove(id: number): Promise<Item> {
-    const item = await this.findOne(id)
+  async remove(id: number, user: User): Promise<Item> {
+    const item = await this.findOne(id, user)
     return await this.itemsRepository.remove(item)
+  }
+
+  async itemCountByUser(user: User): Promise<number> {
+    return this.itemsRepository.count({
+      where: {
+        user: {
+          id: user.id
+        }
+      }
+    })
   }
 
   // Manejo de excepciones
