@@ -47,6 +47,9 @@ type Mutation {
   createItem(createItemInput: CreateItemInput!): Item!
   updateItem(updateItemInput: UpdateItemInput!): Item!
   deleteItem(id: Int!): Item!
+
+  """Ejecuta la construcción de la BD"""
+  executeSeed: Boolean!
 }
 
 input SignupInput {

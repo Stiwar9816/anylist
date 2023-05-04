@@ -39,6 +39,8 @@ yarn start:dev
 localhost:3000/graphql
 ```
 
+9. Ejecutar la **"mutation"** executeSeed, para llenar la base de datos con información
+
 ## Stack Usado
 
 - NestJS
