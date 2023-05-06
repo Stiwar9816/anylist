@@ -9,8 +9,24 @@ type User {
   roles: [String!]!
   isActive: Boolean!
   lastUpdateBy: User
-  items: [Item!]!
   itemCount: Int!
+  items(offset: Int = 0, limit: Int = 10, search: String): [String!]!
+  lists(offset: Int = 0, limit: Int = 10, search: String): [String!]!
+}
+
+type List {
+  id: Int!
+  name: String!
+  user: User!
+  items(offset: Int = 0, limit: Int = 10, search: String): [ListItem!]!
+  totalItems: Float!
+}
+
+type ListItem {
+  id: Int!
+  quantity: Float!
+  completed: Boolean!
+  item: Item!
 }
 
 type Item {
@@ -18,6 +34,7 @@ type Item {
   name: String!
   quantityUnits: String
   user: User!
+  listItem: [ListItem!]!
 }
 
 type AuthResponde {
@@ -29,8 +46,11 @@ type Query {
   revalidate: AuthResponde!
   users(roles: [ValidRoles!] = []): [User!]!
   user(id: Int!): User!
-  items: [Item!]!
+  items(offset: Int = 0, limit: Int = 10, search: String): [Item!]!
   item(id: Int!): Item!
+  lists(offset: Int = 0, limit: Int = 10, search: String): [List!]!
+  list(id: Int!): List!
+  listItem(id: Int!): ListItem!
 }
 
 enum ValidRoles {
@@ -47,6 +67,12 @@ type Mutation {
   createItem(createItemInput: CreateItemInput!): Item!
   updateItem(updateItemInput: UpdateItemInput!): Item!
   deleteItem(id: Int!): Item!
+  createList(createListInput: CreateListInput!): List!
+  updateList(updateListInput: UpdateListInput!): List!
+  removeLists(id: Int!): List!
+  createListItem(createListItemInput: CreateListItemInput!): ListItem!
+  updateListItem(updateListItemInput: UpdateListItemInput!): ListItem!
+  removeListItem(id: Int!): ListItem!
 
   """Ejecuta la construcción de la BD"""
   executeSeed: Boolean!
@@ -80,5 +106,29 @@ input CreateItemInput {
 input UpdateItemInput {
   name: String
   quantityUnits: String
+  id: Int!
+}
+
+input CreateListInput {
+  name: String!
+}
+
+input UpdateListInput {
+  name: String
+  id: Int!
+}
+
+input CreateListItemInput {
+  quantity: Float = 0
+  completed: Boolean = false
+  listId: Int!
+  itemId: Int!
+}
+
+input UpdateListItemInput {
+  quantity: Float = 0
+  completed: Boolean = false
+  listId: Int
+  itemId: Int
   id: Int!
 }

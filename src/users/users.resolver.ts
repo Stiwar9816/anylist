@@ -7,13 +7,18 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
 import { ItemsService } from 'src/items/items.service';
+import { PaginationArgs, SearchArgs } from 'src/common/dto';
+import { Item } from 'src/items/entities/item.entity';
+import { ListsService } from 'src/lists/lists.service';
+import { List } from 'src/lists/entities/list.entity';
 
 @Resolver(() => User)
 @UseGuards(JwtAuthGuard)
 export class UsersResolver {
   constructor(
     private readonly usersService: UsersService,
-    private readonly itemsService: ItemsService
+    private readonly itemsService: ItemsService,
+    private readonly listsService: ListsService
   ) { }
 
   @Query(() => [User], { name: 'users' })
@@ -55,5 +60,25 @@ export class UsersResolver {
     @CurrentUser([ValidRoles.admin, ValidRoles.superUser]) adminUser: User
   ): Promise<number> {
     return this.itemsService.itemCountByUser(user)
+  }
+
+  @ResolveField(() => [String], { name: 'items' })
+  async getItemsByUser(
+    @Parent() user: User,
+    @CurrentUser([ValidRoles.admin, ValidRoles.superUser]) adminUser: User,
+    @Args() paginationArgs: PaginationArgs,
+    @Args() searchArgs: SearchArgs
+  ): Promise<Item[]> {
+    return this.itemsService.findAll(user, paginationArgs, searchArgs)
+  }
+
+  @ResolveField(() => [String], { name: 'lists' })
+  async getListsByUser(
+    @Parent() user: User,
+    @CurrentUser([ValidRoles.admin, ValidRoles.superUser]) adminUser: User,
+    @Args() paginationArgs: PaginationArgs,
+    @Args() searchArgs: SearchArgs
+  ): Promise<List[]> {
+    return this.listsService.findAll(user, paginationArgs, searchArgs)
   }
 }
