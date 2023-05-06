@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  anylistapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: stiwar1098/anylist-grahql
+    container_name: AnylistApp
+    restart: always # reiniciar el contenedor si se detiene
+    ports:
+      - '${PORT}:${PORT}'
+
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USERNAME: ${DB_USERNAME}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: ${PORT}
+      STATE: ${STATE}

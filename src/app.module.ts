@@ -23,13 +23,12 @@ import { ListItemModule } from './list-item/list-item.module';
     ConfigModule.forRoot(),
     // Configuración de credenciales de la DB
     TypeOrmModule.forRoot({
-      ssl: process.env.STAGE === 'prod',
-      extra: {
-        ssl: process.env.STAGE === 'prod'
-          ? { rejectUnauthorized: false }
-          : null
-      },
       type: 'postgres',
+      ssl: (process.env.STATE === 'prod')
+        ? {
+          rejectUnauthorized: false,
+          sslmode: 'require'
+        } : false as any,
       host: process.env.DB_HOST,
       port: +process.env.DB_PORT,
       database: process.env.DB_NAME,
